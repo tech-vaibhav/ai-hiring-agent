@@ -10,4 +10,3 @@ class EvaluationResult(BaseModel):
     strengths: List[str]
     gaps: List[str]
     red_flags: List[str]
-    evaluated_at: datetime
