@@ -14,7 +14,8 @@ def save_job_description(file: UploadFile) -> Dict:
 
     object_path = upload_pdf_bytes(
         pdf_bytes=pdf_bytes,
-        object_prefix=f"jd/{role_id}"
+        object_prefix="jd",
+        filename=f"{role_id}.pdf"
     )
 
     return {
@@ -34,7 +35,8 @@ def save_resumes(files: List[UploadFile]) -> List[Dict]:
 
         object_path = upload_pdf_bytes(
             pdf_bytes=pdf_bytes,
-            object_prefix=f"resumes/{candidate_id}"
+            object_prefix="resumes",
+            filename=f"{candidate_id}.pdf"
         )
 
         saved_resumes.append({

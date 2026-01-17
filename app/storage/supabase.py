@@ -1,6 +1,4 @@
-import os
 from supabase import create_client, Client
-from uuid import uuid4
 from app.config import SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_BUCKET
 
 _client: Client | None = None
@@ -15,42 +13,45 @@ def get_client() -> Client:
     return _client
 
 
-def upload_pdf_bytes(pdf_bytes: bytes, object_prefix: str) -> str:
+def upload_pdf_bytes(
+    pdf_bytes: bytes,
+    object_prefix: str,
+    filename: str
+) -> str:
     """
-    Upload PDF bytes to Supabase Storage (private bucket).
-    Returns the object path (not public URL).
+    Upload PDF bytes to Supabase Storage.
+    Returns object path relative to bucket.
     """
     client = get_client()
-    object_name = f"{object_prefix}/{uuid4().hex}.pdf"
 
-    res = client.storage.from_(SUPABASE_BUCKET).upload(
-        path=object_name,
-        file=pdf_bytes,
+    # filename MUST already include .pdf
+    object_path = f"{object_prefix}/{filename}"
+
+    client.storage.from_(SUPABASE_BUCKET).upload(
+        object_path,
+        pdf_bytes,
         file_options={"content-type": "application/pdf"},
     )
 
-    if res.get("error"):
-        raise RuntimeError(f"Supabase upload failed: {res['error']}")
-
-    return object_name
+    return object_path
 
 
-def create_signed_url(object_path: str, expires_in: int = 300) -> str:
+def download_object(object_path: str) -> bytes:
     """
-    Create a short-lived signed URL for private access.
+    Download a private object from Supabase Storage as bytes.
     """
     client = get_client()
-    res = client.storage.from_(SUPABASE_BUCKET).create_signed_url(
-        path=object_path,
-        expires_in=expires_in,
-    )
-    if res.get("error"):
-        raise RuntimeError(f"Signed URL failed: {res['error']}")
-    return res["signedURL"]
+    data = client.storage.from_(SUPABASE_BUCKET).download(object_path)
+
+    if not data:
+        raise RuntimeError("Failed to download object from Supabase")
+
+    return data
 
 
 def delete_object(object_path: str) -> None:
+    """
+    Delete an object from Supabase Storage.
+    """
     client = get_client()
-    res = client.storage.from_(SUPABASE_BUCKET).remove([object_path])
-    if res.get("error"):
-        raise RuntimeError(f"Delete failed: {res['error']}")
+    client.storage.from_(SUPABASE_BUCKET).remove([object_path])
