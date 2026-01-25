@@ -3,9 +3,9 @@ import os
 from datetime import datetime
 
 from app.pipeline.preprocess import extract_text_from_pdf
-from app.schemas.jd import JobDescription
 from app.storage.supabase import download_object, delete_object
 from app.db.queries import insert_job_role
+from app.agents.jd_agent import extract_jd_structured
 
 
 def parse_and_store_jd(role_id: str, object_path: str) -> dict:
@@ -22,21 +22,15 @@ def parse_and_store_jd(role_id: str, object_path: str) -> dict:
         tmp_path = tmp.name
 
     try:
-        # 3️⃣ Extract text
+        # 3️⃣ Extract text from PDF
         jd_text = extract_text_from_pdf(tmp_path)
         if not jd_text:
             raise ValueError("Failed to extract text from JD PDF")
 
-        # 4️⃣ TEMP: Stub JD parsing (LLM agent comes later)
-        jd = JobDescription(
-            role_title="Software Engineer Intern",
-            must_have_skills=["Python", "SQL"],
-            nice_to_have_skills=["FastAPI", "Cloud"],
-            experience_level="0-2 years",
-            role_type="intern",
-        )
+        # 4️⃣ AI JD Agent (LangChain)
+        jd = extract_jd_structured(jd_text)
 
-        # 5️⃣ Store in DB
+        # 5️⃣ Store structured JD in DB
         insert_job_role(
             role_id=role_id,
             role_title=jd.role_title,
