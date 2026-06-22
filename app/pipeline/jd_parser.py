@@ -47,6 +47,6 @@ def parse_and_store_jd(role_id: str, object_path: str) -> dict:
         }
 
     finally:
-        # 6️⃣ Cleanup temp file + storage object
-        os.remove(tmp_path)
-        delete_object(object_path)
+        # 6️⃣ Cleanup temp file (retain Supabase object)
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)

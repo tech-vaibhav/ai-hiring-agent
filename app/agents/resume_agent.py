@@ -1,6 +1,5 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import PydanticOutputParser
 
 from app.schemas.resume import CandidateProfile
 from app.prompts.resume_prompt import RESUME_SYSTEM_PROMPT
@@ -13,7 +12,7 @@ llm = ChatGoogleGenerativeAI(
     temperature=0.2
 )
 
-parser = PydanticOutputParser(pydantic_object=CandidateProfile)
+structured_llm = llm.with_structured_output(CandidateProfile)
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", RESUME_SYSTEM_PROMPT),
@@ -27,7 +26,7 @@ def extract_resume_structured(
     Extract structured candidate profile from resume text.
     """
 
-    chain = prompt | llm | parser
+    chain = prompt | structured_llm
     profile = chain.invoke({"resume_text": resume_text})
 
     return profile
