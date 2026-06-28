@@ -90,8 +90,8 @@ export default function JobRoleDetailPage() {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = () => {
-    if (!role) return;
-    const url = `${window.location.origin}/apply/${role.role_id}`;
+    if (!roleId) return;
+    const url = `${window.location.origin}/apply/${roleId}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -467,7 +467,7 @@ export default function JobRoleDetailPage() {
                 <input 
                   type="text" 
                   readOnly 
-                  value={`${window.location.origin}/apply/${role.role_id}`} 
+                  value={`${window.location.origin}/apply/${roleId}`} 
                   className="share-link-input"
                 />
                 <button 
