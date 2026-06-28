@@ -5,20 +5,22 @@ from typing import List, Dict
 from app.db.queries import (
     update_task,
     fetch_job_role,
-    fetch_candidate_profile
+    fetch_candidate_profile,
+    insert_drive
 )
 from app.pipeline.jd_parser import parse_and_store_jd
 from app.pipeline.resume_parser import parse_and_store_resume
 from app.pipeline.evaluator import evaluate_jd_and_resume
 
 
-def bg_parse_jd(role_id: str, object_path: str, task_id: str) -> None:
+def bg_parse_jd(role_id: str, object_path: str, task_id: str, drive_id: str, user_id: str) -> None:
     """
     Background worker task to parse a Job Description PDF.
     """
     update_task(task_id, "processing")
     try:
         parse_and_store_jd(role_id, object_path)
+        insert_drive(drive_id, user_id, role_id)
         update_task(
             task_id,
             "completed",
@@ -29,13 +31,13 @@ def bg_parse_jd(role_id: str, object_path: str, task_id: str) -> None:
         update_task(task_id, "failed", error=str(e))
 
 
-def bg_parse_resume(candidate_id: str, object_path: str, task_id: str) -> None:
+def bg_parse_resume(candidate_id: str, object_path: str, task_id: str, role_id: str) -> None:
     """
     Background worker task to parse a single candidate resume PDF.
     """
     update_task(task_id, "processing")
     try:
-        parse_and_store_resume(candidate_id, object_path)
+        parse_and_store_resume(candidate_id, object_path, role_id)
         update_task(
             task_id,
             "completed",
@@ -46,7 +48,7 @@ def bg_parse_resume(candidate_id: str, object_path: str, task_id: str) -> None:
         update_task(task_id, "failed", error=str(e))
 
 
-def bg_parse_resumes_batch(resumes_list: List[Dict[str, str]], task_id: str) -> None:
+def bg_parse_resumes_batch(resumes_list: List[Dict[str, str]], task_id: str, role_id: str) -> None:
     """
     Background worker task to parse multiple resumes in throttled batches.
     """
@@ -65,7 +67,7 @@ def bg_parse_resumes_batch(resumes_list: List[Dict[str, str]], task_id: str) -> 
                 cid = resume["candidate_id"]
                 opath = resume["object_path"]
                 try:
-                    parse_and_store_resume(cid, opath)
+                    parse_and_store_resume(cid, opath, role_id)
                     successful.append(cid)
                 except Exception as e:
                     print(f"[ERROR] Batch resume parsing failed for {cid}: {e}")

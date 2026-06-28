@@ -46,7 +46,8 @@ def evaluate_candidate(
 
     llm_eval = chain.invoke({
         "job_description": job_description,
-        "candidate_profile": candidate_profile
+        "candidate_profile": candidate_profile,
+        "current_date": datetime.now().strftime("%B %d, %Y")
     })
 
     # 🔑 System constructs the full evaluation

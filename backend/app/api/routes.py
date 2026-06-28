@@ -29,7 +29,10 @@ from app.db.queries import (
     verify_user,
     store_otp,
     fetch_otp_by_user,
-    delete_otps_by_user
+    delete_otps_by_user,
+    insert_drive,
+    list_drives_by_user,
+    delete_drive
 )
 from app.pipeline.tasks import (
     bg_parse_jd,
@@ -124,9 +127,13 @@ def ping():
 # ==========================================
 
 @router.post("/job-roles", status_code=status.HTTP_202_ACCEPTED)
-def upload_job_description(file: UploadFile, background_tasks: BackgroundTasks):
+def upload_job_description(
+    file: UploadFile, 
+    background_tasks: BackgroundTasks,
+    current_user: dict = Depends(get_current_user)
+):
     """
-    Upload a single Job Description PDF. Parsing is offloaded to a background task.
+    Upload a single Job Description PDF. Parsing is offloaded to a background task, and a Drive is created.
     """
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
@@ -137,21 +144,72 @@ def upload_job_description(file: UploadFile, background_tasks: BackgroundTasks):
         role_id = ingest_res["role_id"]
         object_path = ingest_res["object_path"]
         
+        # Create drive linked to the user
+        drive_id = f"drive_{uuid4().hex[:8]}"
+        
         # Create persistent task in database
         task_id = f"task_jd_{uuid4().hex[:8]}"
         create_task(task_id, "parse_jd")
         
-        # Trigger background processing
-        background_tasks.add_task(bg_parse_jd, role_id, object_path, task_id)
+        # Trigger background processing (includes inserting drive after parsing succeeds)
+        background_tasks.add_task(
+            bg_parse_jd,
+            role_id,
+            object_path,
+            task_id,
+            drive_id,
+            current_user["user_id"]
+        )
         
         return {
             "task_id": task_id,
             "role_id": role_id,
+            "drive_id": drive_id,
             "status": "pending",
-            "message": "Job description upload accepted. Parsing is running in the background."
+            "message": "Job description upload accepted. Drive created. Parsing is running in the background."
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ingestion failed: {e}")
+
+
+# ==========================================
+# DRIVE ENDPOINTS
+# ==========================================
+
+@router.get("/drives")
+def get_drives(current_user: dict = Depends(get_current_user)):
+    """
+    Get all drives owned by the logged-in recruiter.
+    """
+    try:
+        return list_drives_by_user(current_user["user_id"])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/drives/{drive_id}")
+def remove_drive(drive_id: str, current_user: dict = Depends(get_current_user)):
+    """
+    Delete a drive. This also cascades to delete the associated job role, tasks, and evaluations.
+    """
+    try:
+        # Verify the drive belongs to the user or find the role_id
+        drives = list_drives_by_user(current_user["user_id"])
+        target_drive = next((d for d in drives if d["drive_id"] == drive_id), None)
+        
+        if not target_drive:
+            raise HTTPException(status_code=404, detail="Drive not found or not owned by you.")
+            
+        role_id = target_drive["role_id"]
+        
+        # Delete the job role which automatically cascades to evaluations and the drive itself
+        delete_job_role(role_id)
+        
+        return {"status": "success", "message": f"Drive {drive_id} and related job role/evaluations deleted."}
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/job-roles")
@@ -215,7 +273,11 @@ def remove_job_role(role_id: str):
 # ==========================================
 
 @router.post("/candidates", status_code=status.HTTP_202_ACCEPTED)
-def upload_candidate_resume(file: UploadFile, background_tasks: BackgroundTasks):
+def upload_candidate_resume(
+    file: UploadFile, 
+    background_tasks: BackgroundTasks,
+    role_id: str = Query(...)
+):
     """
     Upload a single Resume PDF. Parsing is offloaded to a background task.
     """
@@ -233,7 +295,7 @@ def upload_candidate_resume(file: UploadFile, background_tasks: BackgroundTasks)
         create_task(task_id, "parse_resume")
         
         # Trigger background processing
-        background_tasks.add_task(bg_parse_resume, candidate_id, object_path, task_id)
+        background_tasks.add_task(bg_parse_resume, candidate_id, object_path, task_id, role_id)
         
         return {
             "task_id": task_id,
@@ -246,7 +308,11 @@ def upload_candidate_resume(file: UploadFile, background_tasks: BackgroundTasks)
 
 
 @router.post("/candidates/batch", status_code=status.HTTP_202_ACCEPTED)
-def upload_resumes_batch(files: List[UploadFile], background_tasks: BackgroundTasks):
+def upload_resumes_batch(
+    files: List[UploadFile], 
+    background_tasks: BackgroundTasks,
+    role_id: str = Query(...)
+):
     """
     Upload multiple resume PDFs. Parsing is offloaded to a background task in throttled batches.
     """
@@ -263,7 +329,7 @@ def upload_resumes_batch(files: List[UploadFile], background_tasks: BackgroundTa
         create_task(task_id, "parse_resume_batch")
         
         # Trigger background processing
-        background_tasks.add_task(bg_parse_resumes_batch, saved_resumes, task_id)
+        background_tasks.add_task(bg_parse_resumes_batch, saved_resumes, task_id, role_id)
         
         return {
             "task_id": task_id,

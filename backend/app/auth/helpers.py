@@ -89,9 +89,31 @@ def verify_access_token(token: str) -> dict:
 
 def verify_google_token(id_token: str) -> dict:
     """
-    Validates a Google OAuth2 ID Token using Google's TokenInfo API.
+    Validates a Google OAuth2 token.
+    Supports both access_tokens (via userinfo endpoint) and id_tokens (via tokeninfo).
     Returns profile information if valid, or None if validation fails.
     """
+    # Try userinfo endpoint first (works with access_tokens from @react-oauth/google)
+    try:
+        userinfo_url = "https://www.googleapis.com/oauth2/v3/userinfo"
+        response = requests.get(
+            userinfo_url,
+            headers={"Authorization": f"Bearer {id_token}"},
+            timeout=10
+        )
+        if response.status_code == 200:
+            payload = response.json()
+            if payload.get("sub"):
+                return {
+                    "google_id": payload.get("sub"),
+                    "email_id": payload.get("email"),
+                    "first_name": payload.get("given_name", ""),
+                    "last_name": payload.get("family_name", "")
+                }
+    except Exception as e:
+        print(f"[WARN] userinfo endpoint failed: {e}")
+
+    # Fall back to tokeninfo endpoint (works with id_tokens)
     try:
         url = f"https://oauth2.googleapis.com/tokeninfo?id_token={id_token}"
         response = requests.get(url, timeout=10)
@@ -109,6 +131,7 @@ def verify_google_token(id_token: str) -> dict:
     except Exception as e:
         print(f"[ERROR] Google token verification crashed: {e}")
         return None
+
 
 
 # ==========================================

@@ -1,6 +1,8 @@
 FIT_SYSTEM_PROMPT = """
 You are an AI hiring evaluator.
 
+Today's date / Current date: {current_date}. Keep this in mind when evaluating timelines, job durations, or flags related to dates.
+
 Your task is to compare a Job Description (JD) with a Candidate Resume
 and produce a structured evaluation.
 

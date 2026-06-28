@@ -1,0 +1,770 @@
+/* JobRoleDetailPage.css */
+
+.detail-container {
+  min-height: 100vh;
+  background: radial-gradient(circle at top right, rgba(91, 108, 255, 0.08), transparent 45%),
+              radial-gradient(circle at bottom left, rgba(52, 211, 153, 0.03), transparent 35%),
+              var(--bg);
+  color: var(--text-1);
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-loading, .detail-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  gap: 20px;
+  padding: 40px;
+  text-align: center;
+}
+
+.detail-loading p {
+  color: var(--text-2);
+  font-size: 1.1rem;
+}
+
+.detail-error h3 {
+  color: var(--error);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.detail-error p {
+  color: var(--text-2);
+  margin-bottom: 12px;
+}
+
+.detail-body {
+  flex-grow: 1;
+  padding: 30px 40px 60px 40px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Top bar with back link and main actions */
+.detail-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-back {
+  background: transparent;
+  color: var(--text-2);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btn-back:hover {
+  color: var(--text-1);
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.action-buttons-group {
+  display: flex;
+  gap: 12px;
+}
+
+/* Batch evaluation status banner */
+.batch-status-banner {
+  background: rgba(91, 108, 255, 0.1);
+  border: 1px solid rgba(91, 108, 255, 0.2);
+  color: var(--accent-2);
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+}
+
+/* Main Grid Layout */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Left Card: Job Description Details */
+.job-info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 94px;
+}
+
+.job-info-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+}
+
+.role-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: rgba(91, 108, 255, 0.1);
+  color: var(--accent-2);
+  border: 1px solid rgba(91, 108, 255, 0.2);
+  align-self: flex-start;
+}
+
+.job-info-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-1);
+  line-height: 1.3;
+}
+
+.job-info-exp {
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+.skills-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skills-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-pill {
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.skill-pill.must-have {
+  background: rgba(91, 108, 255, 0.08);
+  color: var(--accent-2);
+  border: 1px solid rgba(91, 108, 255, 0.15);
+}
+
+.skill-pill.nice-to-have {
+  background: rgba(52, 211, 153, 0.05);
+  color: var(--success);
+  border: 1px solid rgba(52, 211, 153, 0.12);
+}
+
+.skill-pill.plain {
+  background: var(--surface-2);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+}
+
+.no-skills {
+  font-size: 0.85rem;
+  color: var(--text-3);
+  font-style: italic;
+}
+
+/* Right Panel: Candidates List */
+.candidates-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.panel-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+}
+
+.panel-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.candidates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.candidate-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.2s ease;
+}
+
+.candidate-card:hover {
+  border-color: var(--border-2);
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 768px) {
+  .candidate-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .cand-status-section {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+.cand-main-info {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-grow: 1;
+}
+
+.cand-avatar {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--border-2), var(--surface));
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--accent-2);
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.cand-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cand-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.cand-exp {
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+.cand-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.cand-skill-pill {
+  font-size: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.cand-skill-pill-more {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  align-self: center;
+}
+
+/* Status section on candidate card */
+.cand-status-section {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.eval-status-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-2);
+  font-weight: 500;
+}
+
+.eval-scorecard-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.score-badge {
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 30px;
+  text-align: center;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.score-badge.score-excellent {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+}
+
+.score-badge.score-good {
+  background: rgba(251, 191, 36, 0.08);
+  color: var(--warning);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.score-badge.score-poor {
+  background: rgba(248, 113, 113, 0.08);
+  color: var(--error);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.decision-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.decision-badge.decision-strong {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+}
+
+.decision-badge.decision-hire {
+  background: rgba(91, 108, 255, 0.12);
+  color: var(--accent-2);
+  border: 1px solid rgba(91, 108, 255, 0.2);
+}
+
+.decision-badge.decision-reject {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--error);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.btn-view-scorecard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.btn-view-scorecard:hover {
+  color: var(--text-1);
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
+.eval-trigger-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.unevaluated-badge {
+  font-size: 0.8rem;
+  color: var(--text-3);
+  font-weight: 500;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.btn-trigger-eval {
+  background: var(--accent);
+  color: var(--text-1);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+.btn-trigger-eval:hover {
+  background: var(--accent-2);
+  transform: translateY(-1px);
+}
+
+/* Empty states */
+.candidates-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 60px 40px;
+  gap: 16px;
+}
+
+.candidates-empty-state h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.candidates-empty-state p {
+  color: var(--text-2);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  max-width: 320px;
+}
+
+/* Selected files list inside uploader */
+.selected-files-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.selected-files-list .list-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.selected-files-list .list-scroll {
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--border);
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+/* Scorecard detailed modal styles */
+.scorecard-modal {
+  background: #111318;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.scorecard-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.btn-close-scorecard {
+  background: transparent;
+  color: var(--text-3);
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.btn-close-scorecard:hover {
+  color: var(--text-1);
+}
+
+.scorecard-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-top: 8px;
+}
+
+.scorecard-content {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.scorecard-grid-top {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 560px) {
+  .scorecard-grid-top {
+    grid-template-columns: 1fr;
+  }
+}
+
+.scorecard-stat-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.fit-score-card {
+  align-items: center;
+  text-align: center;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.25);
+}
+
+.fit-score-card.score-excellent {
+  border-color: rgba(52, 211, 153, 0.3);
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.05) 0%, var(--surface-2) 100%);
+}
+
+.fit-score-card.score-good {
+  border-color: rgba(251, 191, 36, 0.25);
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.04) 0%, var(--surface-2) 100%);
+}
+
+.fit-score-card.score-poor {
+  border-color: rgba(248, 113, 113, 0.25);
+  background: radial-gradient(circle, rgba(248, 113, 113, 0.04) 0%, var(--surface-2) 100%);
+}
+
+.score-percent {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.score-percent.score-excellent { color: var(--success); }
+.score-percent.score-good { color: var(--warning); }
+.score-percent.score-poor { color: var(--error); }
+
+.score-label {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.detail-profile-info {
+  gap: 16px;
+}
+
+.profile-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.profile-info-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.profile-info-item span {
+  color: var(--text-2);
+}
+
+.profile-info-item strong {
+  color: var(--text-1);
+}
+
+/* Strengths & Gaps grids */
+.analysis-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 640px) {
+  .analysis-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.analysis-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.analysis-card.strengths-card {
+  border-left: 4px solid var(--success);
+}
+
+.analysis-card.gaps-card {
+  border-left: 4px solid var(--warning);
+}
+
+.analysis-card.red-flags-card {
+  border-left: 4px solid var(--text-3);
+}
+
+.analysis-card.red-flags-card.has-red-flags {
+  border-left-color: var(--error);
+  background: rgba(248, 113, 113, 0.01);
+}
+
+.card-subtitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.strengths-card .card-subtitle { color: var(--success); }
+.gaps-card .card-subtitle { color: var(--warning); }
+.red-flags-card .card-subtitle { color: var(--error); }
+
+.analysis-list {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--text-2);
+}
+
+.analysis-list li {
+  line-height: 1.5;
+}
+
+.analysis-list.plain {
+  padding-left: 18px;
+  color: var(--text-2);
+}
+
+.analysis-list.plain li {
+  margin-bottom: 4px;
+}
+
+.red-flag-item {
+  color: var(--error);
+  font-weight: 500;
+}
+
+/* Extracted details at bottom of scorecard */
+.resume-extracted-section {
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.resume-extracted-section .section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.resume-section-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resume-section-item h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.resume-section-item p {
+  font-size: 0.9rem;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+
+.scorecard-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Spinner helper sizes */
+.spinner-sm {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+}
+
+/* Animation keyframes */
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

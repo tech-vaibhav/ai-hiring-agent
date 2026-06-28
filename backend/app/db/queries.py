@@ -48,6 +48,7 @@ def insert_job_role(
 
 def insert_candidate_profile(
     candidate_id: str,
+    role_id: str,
     skills: list,
     experience_summary: str,
     projects: list,
@@ -58,6 +59,7 @@ def insert_candidate_profile(
     query = """
     INSERT INTO candidates (
         candidate_id,
+        role_id,
         skills,
         experience_summary,
         projects,
@@ -65,7 +67,7 @@ def insert_candidate_profile(
         red_flags,
         created_at
     )
-    VALUES (%s, %s, %s, %s, %s, %s, %s)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """
 
     conn = get_connection()
@@ -75,6 +77,7 @@ def insert_candidate_profile(
                 query,
                 (
                     candidate_id,
+                    role_id,
                     Json(skills),
                     experience_summary,
                     Json(projects),
@@ -413,7 +416,8 @@ def fetch_role_candidates_evaluations(role_id: str) -> list:
     SELECT c.candidate_id, c.skills, c.experience_summary, c.projects, c.experience_level, c.red_flags, c.created_at,
            e.fit_score, e.decision, e.strengths, e.gaps, e.red_flags, e.evaluated_at
     FROM candidates c
-    LEFT JOIN evaluations e ON c.candidate_id = e.candidate_id AND e.role_id = %s
+    LEFT JOIN evaluations e ON c.candidate_id = e.candidate_id AND e.role_id = c.role_id
+    WHERE c.role_id = %s
     ORDER BY c.created_at DESC
     """
     conn = get_connection()
@@ -699,6 +703,68 @@ def delete_otps_by_user(user_id: str) -> None:
             conn.commit()
     finally:
         conn.close()
+
+
+# ==========================================
+# DRIVE DB QUERIES
+# ==========================================
+
+def insert_drive(drive_id: str, user_id: str, role_id: str) -> None:
+    query = """
+    INSERT INTO drives (drive_id, user_id, role_id, created_at, updated_at)
+    VALUES (%s, %s, %s, NOW(), NOW())
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(query, (drive_id, user_id, role_id))
+            conn.commit()
+    finally:
+        conn.close()
+
+
+def list_drives_by_user(user_id: str) -> list:
+    query = """
+    SELECT d.drive_id, d.user_id, d.role_id, d.created_at,
+           r.role_title, r.experience_level, r.role_type,
+           (SELECT COUNT(*) FROM evaluations e WHERE e.role_id = d.role_id) as candidate_count
+    FROM drives d
+    JOIN job_roles r ON d.role_id = r.role_id
+    WHERE d.user_id = %s
+    ORDER BY d.created_at DESC
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(query, (user_id,))
+            rows = cur.fetchall()
+            return [
+                {
+                    "drive_id": r[0],
+                    "user_id": r[1],
+                    "role_id": r[2],
+                    "created_at": r[3],
+                    "role_title": r[4],
+                    "experience_level": r[5],
+                    "role_type": r[6],
+                    "candidate_count": r[7]
+                }
+                for r in rows
+            ]
+    finally:
+        conn.close()
+
+
+def delete_drive(drive_id: str) -> None:
+    query = "DELETE FROM drives WHERE drive_id = %s"
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(query, (drive_id,))
+            conn.commit()
+    finally:
+        conn.close()
+
 
 
 

@@ -10,7 +10,8 @@ from app.db.queries import insert_candidate_profile
 
 def parse_and_store_resume(
     candidate_id: str,
-    object_path: str
+    object_path: str,
+    role_id: str
 ) -> dict:
     """
     Parse resume PDF from Supabase Storage and store structured resume in DB.
@@ -39,6 +40,7 @@ def parse_and_store_resume(
         # 5️⃣ Store in DB
         insert_candidate_profile(
             candidate_id=profile.candidate_id,
+            role_id=role_id,
             skills=profile.skills,
             experience_summary=profile.experience_summary,
             projects=profile.projects,

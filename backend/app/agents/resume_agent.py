@@ -1,3 +1,4 @@
+from datetime import datetime
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -27,6 +28,9 @@ def extract_resume_structured(
     """
 
     chain = prompt | structured_llm
-    profile = chain.invoke({"resume_text": resume_text})
+    profile = chain.invoke({
+        "resume_text": resume_text,
+        "current_date": datetime.now().strftime("%B %d, %Y")
+    })
 
     return profile

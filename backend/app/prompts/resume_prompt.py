@@ -2,6 +2,8 @@ RESUME_SYSTEM_PROMPT = """
 You are an AI assistant that extracts structured information
 from a candidate resume.
 
+Today's date / Current date: {current_date}. Keep this in mind when evaluating if experience dates are in the future relative to today.
+
 You MUST return ONLY valid JSON.
 DO NOT add explanations.
 DO NOT add markdown.
