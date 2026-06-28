@@ -85,6 +85,17 @@ export default function JobRoleDetailPage() {
 
   // Single Evaluation states
   const [evaluatingCandidates, setEvaluatingCandidates] = useState<Record<string, boolean>>({});
+  
+  // Share Link state
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    if (!role) return;
+    const url = `${window.location.origin}/apply/${role.role_id}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Scorecard modal state
   const [activeScorecard, setActiveScorecard] = useState<{
@@ -446,6 +457,25 @@ export default function JobRoleDetailPage() {
                 ) : (
                   <span className="no-skills">None specified</span>
                 )}
+              </div>
+            </div>
+
+            <div className="share-link-section">
+              <h4 className="skills-title">Share Application Link</h4>
+              <p className="share-link-desc">Candidates can use this link to apply directly. Resumes will be automatically parsed and linked here.</p>
+              <div className="share-link-box">
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={`${window.location.origin}/apply/${role.role_id}`} 
+                  className="share-link-input"
+                />
+                <button 
+                  className={`btn-copy-link ${copied ? 'copied' : ''}`}
+                  onClick={handleCopyLink}
+                >
+                  {copied ? 'Copied! ✓' : 'Copy Link'}
+                </button>
               </div>
             </div>
           </aside>

@@ -10,6 +10,7 @@ import JobRoleDetailPage from './pages/JobRoleDetailPage';
 import CandidatesPage from './pages/CandidatesPage';
 import EvaluationsPage from './pages/EvaluationsPage';
 import ProfilePage from './pages/ProfilePage';
+import CandidateApplyPage from './pages/CandidateApplyPage';
 import { DrivesProvider } from './context/DrivesContext';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <Routes>
           {/* Public */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/apply/:roleId" element={<CandidateApplyPage />} />
 
           {/* Protected */}
           <Route

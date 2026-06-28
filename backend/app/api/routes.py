@@ -774,3 +774,60 @@ def get_user_profile(user: dict = Depends(get_current_user)):
     profile.pop("password_hash", None)
     return profile
 
+
+# ==========================================
+# PUBLIC CANDIDATE PORTAL ENDPOINTS
+# ==========================================
+
+@router.get("/public/job-roles/{role_id}")
+def public_get_job_role(role_id: str):
+    """
+    Get job role details publicly (for candidates applying).
+    """
+    try:
+        return fetch_job_role(role_id)
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/public/apply/{role_id}", status_code=status.HTTP_202_ACCEPTED)
+def public_apply_to_job(
+    role_id: str,
+    file: UploadFile,
+    background_tasks: BackgroundTasks
+):
+    """
+    Public candidate application: upload resume PDF and parse it in the background linked to the role_id.
+    """
+    if not file.filename.endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+    
+    try:
+        # Verify the role_id exists
+        fetch_job_role(role_id)
+        
+        # Save resume to Supabase Storage
+        ingest_res = save_resumes([file])[0]
+        candidate_id = ingest_res["candidate_id"]
+        object_path = ingest_res["object_path"]
+        
+        # Create persistent task in database
+        task_id = f"task_res_{uuid4().hex[:8]}"
+        create_task(task_id, "parse_resume")
+        
+        # Trigger background processing (passes role_id so candidate is linked)
+        background_tasks.add_task(bg_parse_resume, candidate_id, object_path, task_id, role_id)
+        
+        return {
+            "task_id": task_id,
+            "candidate_id": candidate_id,
+            "status": "pending",
+            "message": "Resume uploaded successfully. Parsing in progress."
+        }
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Application submission failed: {e}")
+

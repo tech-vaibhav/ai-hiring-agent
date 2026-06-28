@@ -63,3 +63,15 @@ export const evaluationsApi = {
 export const tasksApi = {
   get: (taskId: string) => api.get<Task>(`/tasks/${taskId}`),
 };
+
+// ---- Public Portal ----
+export const publicApi = {
+  getJobRole: (roleId: string) => api.get<JobRole>(`/public/job-roles/${roleId}`),
+  apply: (roleId: string, file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return api.post<{ task_id: string; candidate_id: string }>(`/public/apply/${roleId}`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+};
