@@ -831,3 +831,36 @@ def public_apply_to_job(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Application submission failed: {e}")
 
+
+@router.get("/candidates/{candidate_id}/resume")
+def get_candidate_resume_file(
+    candidate_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Securely download/stream a candidate's resume PDF from Supabase Storage.
+    Only authenticated recruiters can access this.
+    """
+    from fastapi import Response
+    from app.storage.supabase import download_object
+
+    try:
+        # Check if candidate exists (raises ValueError if not found)
+        fetch_candidate_profile(candidate_id)
+
+        # Download from private storage bucket
+        object_path = f"resumes/{candidate_id}.pdf"
+        pdf_bytes = download_object(object_path)
+
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"inline; filename={candidate_id}.pdf"
+            }
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch resume: {e}")
+

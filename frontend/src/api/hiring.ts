@@ -43,6 +43,8 @@ export const candidatesApi = {
   list: () => api.get<Candidate[]>('/candidates'),
   get: (candidateId: string) => api.get<Candidate>(`/candidates/${candidateId}`),
   delete: (candidateId: string) => api.delete(`/candidates/${candidateId}`),
+  viewResume: (candidateId: string) =>
+    api.get<Blob>(`/candidates/${candidateId}/resume`, { responseType: 'blob' }),
 };
 
 // ---- Evaluations ----

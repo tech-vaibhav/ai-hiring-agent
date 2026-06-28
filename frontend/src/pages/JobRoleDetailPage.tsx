@@ -97,6 +97,55 @@ export default function JobRoleDetailPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Resume Viewer states
+  const [activeResumeUrl, setActiveResumeUrl] = useState<string | null>(null);
+  const [viewingResumeName, setViewingResumeName] = useState<string>('');
+  const [loadingResumeId, setLoadingResumeId] = useState<string | null>(null);
+
+  const handleViewResume = async (candidateId: string, candidateName?: string) => {
+    setLoadingResumeId(candidateId);
+    try {
+      const res = await candidatesApi.viewResume(candidateId);
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      setActiveResumeUrl(url);
+      setViewingResumeName(candidateName || 'Candidate Resume');
+    } catch (err) {
+      console.error('Error fetching resume PDF:', err);
+      alert('Failed to load resume PDF. Please check backend connection.');
+    } finally {
+      setLoadingResumeId(null);
+    }
+  };
+
+  const handleCloseResumeModal = () => {
+    if (activeResumeUrl) {
+      URL.revokeObjectURL(activeResumeUrl);
+    }
+    setActiveResumeUrl(null);
+    setViewingResumeName('');
+  };
+
+  useEffect(() => {
+    return () => {
+      if (activeResumeUrl) {
+        URL.revokeObjectURL(activeResumeUrl);
+      }
+    };
+  }, [activeResumeUrl]);
+
+  const getCandidateInitials = (name?: string, fallbackId?: string) => {
+    if (!name || name === 'Unknown Candidate') {
+      if (fallbackId) {
+        return fallbackId.substring(5, 7).toUpperCase();
+      }
+      return 'CD';
+    }
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+  };
+
   // Scorecard modal state
   const [activeScorecard, setActiveScorecard] = useState<{
     candidate: CandidateWithEvaluation;
@@ -496,10 +545,20 @@ export default function JobRoleDetailPage() {
                     <div key={candidate.candidate_id} className="candidate-card">
                       <div className="cand-main-info">
                         <div className="cand-avatar">
-                          {candidate.candidate_id.substring(5, 7).toUpperCase()}
+                          {getCandidateInitials(candidate.candidate_name, candidate.candidate_id)}
                         </div>
                         <div className="cand-meta">
-                          <h4 className="cand-name">Candidate: {candidate.candidate_id}</h4>
+                          <h4 className="cand-name">{candidate.candidate_name || `Candidate: ${candidate.candidate_id}`}</h4>
+                          <button 
+                            className="btn-view-resume-link"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewResume(candidate.candidate_id, candidate.candidate_name);
+                            }}
+                            disabled={loadingResumeId === candidate.candidate_id}
+                          >
+                            {loadingResumeId === candidate.candidate_id ? 'Loading Resume...' : 'View Resume PDF'}
+                          </button>
                           <p className="cand-exp">Experience: {candidate.experience_level || 'Not parsed'}</p>
                           <div className="cand-skills">
                             {candidate.skills && candidate.skills.slice(0, 5).map((skill, idx) => (
@@ -694,7 +753,7 @@ export default function JobRoleDetailPage() {
                 <span className={`decision-badge ${getDecisionClass(activeScorecard.evaluation.decision)}`}>
                   {activeScorecard.evaluation.decision}
                 </span>
-                <h2 className="scorecard-title">AI Evaluation: {activeScorecard.candidate.candidate_id}</h2>
+                <h2 className="scorecard-title">AI Evaluation: {activeScorecard.candidate.candidate_name || activeScorecard.candidate.candidate_id}</h2>
               </div>
               <button className="btn-close-scorecard" onClick={() => setActiveScorecard(null)}>✕</button>
             </div>
@@ -806,6 +865,21 @@ export default function JobRoleDetailPage() {
             <div className="spinner"></div>
             <p>AI is evaluating Candidate Resumes synchronously against this Role...</p>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-3)' }}>This might take 10-15 seconds for LLM analysis.</p>
+          </div>
+        </div>
+      )}
+
+      {/* PDF RESUME VIEW MODAL */}
+      {activeResumeUrl && (
+        <div className="modal-overlay" onClick={handleCloseResumeModal}>
+          <div className="pdf-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="pdf-modal-header">
+              <h3>Resume: {viewingResumeName}</h3>
+              <button className="btn-close-pdf" onClick={handleCloseResumeModal}>✕</button>
+            </div>
+            <div className="pdf-modal-body">
+              <iframe src={activeResumeUrl} title="Resume PDF" width="100%" height="100%" frameBorder="0" />
+            </div>
           </div>
         </div>
       )}

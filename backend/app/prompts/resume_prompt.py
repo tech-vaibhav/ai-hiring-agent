@@ -11,6 +11,7 @@ DO NOT infer missing information.
 
 JSON schema:
 {{
+  "candidate_name": string,
   "skills": [string],
   "experience_summary": string,
   "projects": [string],
@@ -19,6 +20,7 @@ JSON schema:
 }}
 
 Rules:
+- Extract the candidate's full name (usually at the very top of the resume). If it cannot be determined, default to "Unknown Candidate".
 - Extract ONLY technical skills (languages, tools, frameworks)
 - Do NOT guess experience level
 - If experience level is not mentioned, return "unknown"

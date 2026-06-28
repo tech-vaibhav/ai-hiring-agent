@@ -3,6 +3,7 @@ from typing import List, Optional
 
 class CandidateProfile(BaseModel):
     candidate_id: Optional[str] = None 
+    candidate_name: str
     skills: List[str]
     experience_summary: str
     projects: List[str]

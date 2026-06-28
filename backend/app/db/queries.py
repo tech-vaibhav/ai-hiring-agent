@@ -55,6 +55,7 @@ def insert_candidate_profile(
     experience_level: str,
     red_flags: list,
     created_at: datetime,
+    candidate_name: str = "Unknown Candidate",
 ) -> None:
     query = """
     INSERT INTO candidates (
@@ -65,9 +66,10 @@ def insert_candidate_profile(
         projects,
         experience_level,
         red_flags,
-        created_at
+        created_at,
+        candidate_name
     )
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
 
     conn = get_connection()
@@ -84,6 +86,7 @@ def insert_candidate_profile(
                     experience_level,
                     Json(red_flags),
                     created_at,
+                    candidate_name,
                 ),
             )
             conn.commit()
@@ -165,7 +168,7 @@ def fetch_job_role(role_id: str) -> dict:
 def fetch_candidate_profile(candidate_id: str) -> dict:
     query = """
     SELECT skills, experience_summary, projects,
-           experience_level, red_flags
+           experience_level, red_flags, candidate_name
     FROM candidates
     WHERE candidate_id = %s
     """
@@ -184,6 +187,7 @@ def fetch_candidate_profile(candidate_id: str) -> dict:
                 "projects": row[2],
                 "experience_level": row[3],
                 "red_flags": row[4],
+                "candidate_name": row[5],
             }
     finally:
         conn.close()
@@ -216,7 +220,7 @@ def list_job_roles() -> list:
 
 def list_candidates() -> list:
     query = """
-    SELECT candidate_id, skills, experience_summary, projects, experience_level, red_flags, created_at
+    SELECT candidate_id, skills, experience_summary, projects, experience_level, red_flags, created_at, candidate_name
     FROM candidates
     ORDER BY created_at DESC
     """
@@ -234,6 +238,7 @@ def list_candidates() -> list:
                     "experience_level": r[4],
                     "red_flags": r[5],
                     "created_at": r[6],
+                    "candidate_name": r[7],
                 }
                 for r in rows
             ]
@@ -414,7 +419,7 @@ def fetch_unevaluated_candidates(role_id: str) -> list:
 def fetch_role_candidates_evaluations(role_id: str) -> list:
     query = """
     SELECT c.candidate_id, c.skills, c.experience_summary, c.projects, c.experience_level, c.red_flags, c.created_at,
-           e.fit_score, e.decision, e.strengths, e.gaps, e.red_flags, e.evaluated_at
+           e.fit_score, e.decision, e.strengths, e.gaps, e.red_flags, e.evaluated_at, c.candidate_name
     FROM candidates c
     LEFT JOIN evaluations e ON c.candidate_id = e.candidate_id AND e.role_id = c.role_id
     WHERE c.role_id = %s
@@ -434,6 +439,7 @@ def fetch_role_candidates_evaluations(role_id: str) -> list:
                     "experience_level": r[4],
                     "red_flags": r[5],
                     "created_at": r[6],
+                    "candidate_name": r[13],
                     "evaluation": {
                         "fit_score": r[7],
                         "decision": r[8],

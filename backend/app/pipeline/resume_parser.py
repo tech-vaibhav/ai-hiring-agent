@@ -47,6 +47,7 @@ def parse_and_store_resume(
             experience_level=profile.experience_level,
             red_flags=profile.red_flags,
             created_at=datetime.utcnow(),
+            candidate_name=profile.candidate_name,
         )
 
         return {

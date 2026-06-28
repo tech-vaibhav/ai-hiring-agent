@@ -94,6 +94,7 @@ export interface Candidate {
   experience_level: string;
   red_flags: string[];
   created_at: string;
+  candidate_name?: string;
 }
 
 export interface CandidateWithEvaluation extends Candidate {
