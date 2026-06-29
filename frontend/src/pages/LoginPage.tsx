@@ -62,13 +62,7 @@ export default function LoginPage() {
     clearError();
     setLoading(true);
     try {
-      // Exchange Google access_token for the id_token via userinfo
-      const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-      });
-      const userInfo = await userInfoRes.json();
-      // Use sub + email to construct a minimal id_token-equivalent call
-      // Our backend /auth/google accepts Google's access token via tokeninfo
+      // Exchange Google access_token for the id_token
       const res = await authApi.googleAuth({ id_token: tokenResponse.access_token });
       await login(res.data.access_token);
       navigate('/dashboard');

@@ -76,11 +76,9 @@ export default function JobRoleDetailPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<'idle' | 'uploading' | 'parsing' | 'success' | 'error'>('idle');
   const [uploadError, setUploadError] = useState('');
-  const [uploadTaskId, setUploadTaskId] = useState('');
 
   // Batch Evaluation states
   const [batchEvaluating, setBatchEvaluating] = useState(false);
-  const [batchTaskId, setBatchTaskId] = useState('');
   const [batchMessage, setBatchMessage] = useState('');
 
   // Single Evaluation states
@@ -154,8 +152,8 @@ export default function JobRoleDetailPage() {
   const [scorecardLoading, setScorecardLoading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadPollRef = useRef<NodeJS.Timeout | null>(null);
-  const batchPollRef = useRef<NodeJS.Timeout | null>(null);
+  const uploadPollRef = useRef<any>(null);
+  const batchPollRef = useRef<any>(null);
 
   useEffect(() => {
     if (roleId) {
@@ -261,7 +259,6 @@ export default function JobRoleDetailPage() {
         res = await candidatesApi.uploadBatch(selectedFiles, roleId);
       }
       const { task_id } = res.data;
-      setUploadTaskId(task_id);
       startPollingUpload(task_id);
     } catch (err: any) {
       setUploadProgress('error');
@@ -276,7 +273,7 @@ export default function JobRoleDetailPage() {
     if (!roleId) return;
     setEvaluatingCandidates(prev => ({ ...prev, [candidateId]: true }));
     try {
-      const res = await evaluationsApi.get(roleId, candidateId);
+      await evaluationsApi.get(roleId, candidateId);
       // Backend evaluated synchronously and returned scorecard directly
       fetchCandidatesList();
     } catch (err: any) {
@@ -301,7 +298,6 @@ export default function JobRoleDetailPage() {
       const res = await evaluationsApi.triggerBatch(roleId, unevaluated);
       const { task_id, message } = res.data;
       if (task_id) {
-        setBatchTaskId(task_id);
         setBatchMessage(message || 'AI is evaluating candidates in the background...');
         startPollingBatchEval(task_id);
       } else {

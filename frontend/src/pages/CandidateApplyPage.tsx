@@ -1,17 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { publicApi, tasksApi } from '../api/hiring';
 import type { JobRole } from '../types';
 import './CandidateApplyPage.css';
 
 // ---- Inline Icons ----
-const BriefcaseIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-  </svg>
-);
-
 const FilePdfIcon = () => (
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -40,13 +33,11 @@ export default function CandidateApplyPage() {
   const [candidateName, setCandidateName] = useState('');
   const [experienceYears, setExperienceYears] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [submitting, setSubmitting] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [processingStatus, setProcessingStatus] = useState<'idle' | 'uploading' | 'parsing' | 'success' | 'error'>('idle');
-  const [currentTaskId, setCurrentTaskId] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const pollTimerRef = useRef<any>(null);
 
   useEffect(() => {
     if (roleId) {
@@ -110,7 +101,6 @@ export default function CandidateApplyPage() {
   // Trigger submission
   const handleSubmitApplication = async () => {
     if (!selectedFile || !roleId || !candidateName.trim() || !experienceYears.trim()) return;
-    setSubmitting(true);
     setUploadError('');
     setProcessingStatus('uploading');
 
@@ -122,12 +112,10 @@ export default function CandidateApplyPage() {
         experienceYears.trim()
       );
       const { task_id } = res.data;
-      setCurrentTaskId(task_id);
       startPollingTask(task_id);
     } catch (err: any) {
       setProcessingStatus('error');
       setUploadError(err.response?.data?.detail || 'Failed to submit application. Please try again.');
-      setSubmitting(false);
     }
   };
 
