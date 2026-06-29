@@ -31,13 +31,26 @@ def bg_parse_jd(role_id: str, object_path: str, task_id: str, drive_id: str, use
         update_task(task_id, "failed", error=str(e))
 
 
-def bg_parse_resume(candidate_id: str, object_path: str, task_id: str, role_id: str) -> None:
+def bg_parse_resume(
+    candidate_id: str,
+    object_path: str,
+    task_id: str,
+    role_id: str,
+    candidate_name: str = None,
+    experience_level: str = None
+) -> None:
     """
     Background worker task to parse a single candidate resume PDF.
     """
     update_task(task_id, "processing")
     try:
-        parse_and_store_resume(candidate_id, object_path, role_id)
+        parse_and_store_resume(
+            candidate_id=candidate_id,
+            object_path=object_path,
+            role_id=role_id,
+            candidate_name=candidate_name,
+            experience_level=experience_level
+        )
         update_task(
             task_id,
             "completed",

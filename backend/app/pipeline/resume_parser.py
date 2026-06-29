@@ -11,7 +11,9 @@ from app.db.queries import insert_candidate_profile
 def parse_and_store_resume(
     candidate_id: str,
     object_path: str,
-    role_id: str
+    role_id: str,
+    candidate_name: str = None,
+    experience_level: str = None
 ) -> dict:
     """
     Parse resume PDF from Supabase Storage and store structured resume in DB.
@@ -32,7 +34,11 @@ def parse_and_store_resume(
             raise ValueError("Failed to extract text from resume PDF")
 
         # 4️⃣ AI Resume Agent
-        profile = extract_resume_structured(resume_text)
+        profile = extract_resume_structured(
+            resume_text,
+            candidate_name=candidate_name,
+            experience_level=experience_level
+        )
 
         # Inject candidate_id explicitly (NOT from LLM) 
         profile.candidate_id = candidate_id

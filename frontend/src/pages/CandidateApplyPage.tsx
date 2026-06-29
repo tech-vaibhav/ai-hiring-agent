@@ -37,6 +37,8 @@ export default function CandidateApplyPage() {
   const [error, setError] = useState('');
 
   // Resume Upload State
+  const [candidateName, setCandidateName] = useState('');
+  const [experienceYears, setExperienceYears] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -107,13 +109,18 @@ export default function CandidateApplyPage() {
 
   // Trigger submission
   const handleSubmitApplication = async () => {
-    if (!selectedFile || !roleId) return;
+    if (!selectedFile || !roleId || !candidateName.trim() || !experienceYears.trim()) return;
     setSubmitting(true);
     setUploadError('');
     setProcessingStatus('uploading');
 
     try {
-      const res = await publicApi.apply(roleId, selectedFile);
+      const res = await publicApi.apply(
+        roleId,
+        selectedFile,
+        candidateName.trim(),
+        experienceYears.trim()
+      );
       const { task_id } = res.data;
       setCurrentTaskId(task_id);
       startPollingTask(task_id);
@@ -216,25 +223,54 @@ export default function CandidateApplyPage() {
 
               {processingStatus === 'idle' && (
                 <>
-                  <div 
-                    className="apply-dropzone"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
+                  <div className="apply-input-group">
+                    <label className="apply-input-label">Full Name</label>
                     <input 
-                      type="file" 
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                      accept="application/pdf"
-                      style={{ display: 'none' }}
+                      type="text" 
+                      placeholder="e.g. Jane Doe" 
+                      value={candidateName}
+                      onChange={(e) => setCandidateName(e.target.value)}
+                      className="apply-input"
+                      required
                     />
-                    <div className="apply-dropzone-icon">
-                      <UploadCloudIcon />
-                    </div>
-                    <div className="apply-dropzone-text">
-                      {selectedFile ? 'Change Resume PDF' : 'Upload Resume PDF'}
-                    </div>
-                    <div className="apply-dropzone-subtext">
-                      Drag and drop or click to browse. Max 10MB. PDF only.
+                  </div>
+
+                  <div className="apply-input-group">
+                    <label className="apply-input-label">Total Experience (Years)</label>
+                    <input 
+                      type="number" 
+                      min="0"
+                      step="1"
+                      placeholder="e.g. 5" 
+                      value={experienceYears}
+                      onChange={(e) => setExperienceYears(e.target.value)}
+                      className="apply-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="apply-input-group">
+                    <label className="apply-input-label">Upload Resume PDF</label>
+                    <div 
+                      className="apply-dropzone"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <input 
+                        type="file" 
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept="application/pdf"
+                        style={{ display: 'none' }}
+                      />
+                      <div className="apply-dropzone-icon">
+                        <UploadCloudIcon />
+                      </div>
+                      <div className="apply-dropzone-text">
+                        {selectedFile ? 'Change Resume PDF' : 'Select PDF'}
+                      </div>
+                      <div className="apply-dropzone-subtext">
+                        Drag and drop or click to browse. Max 10MB. PDF only.
+                      </div>
                     </div>
                   </div>
 
@@ -257,8 +293,8 @@ export default function CandidateApplyPage() {
                     <button 
                       className="apply-btn-submit" 
                       onClick={handleSubmitApplication}
-                      disabled={!selectedFile}
-                      style={{ opacity: selectedFile ? 1 : 0.6 }}
+                      disabled={!selectedFile || !candidateName.trim() || !experienceYears.trim()}
+                      style={{ opacity: (selectedFile && candidateName.trim() && experienceYears.trim()) ? 1 : 0.6 }}
                     >
                       Submit Application
                     </button>

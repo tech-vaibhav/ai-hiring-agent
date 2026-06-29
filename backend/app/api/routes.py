@@ -1,7 +1,7 @@
 from uuid import uuid4
 from datetime import datetime, timedelta
 from typing import List, Optional
-from fastapi import APIRouter, UploadFile, BackgroundTasks, HTTPException, Query, status, Depends
+from fastapi import APIRouter, UploadFile, BackgroundTasks, HTTPException, Query, status, Depends, Form
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
@@ -796,7 +796,9 @@ def public_get_job_role(role_id: str):
 def public_apply_to_job(
     role_id: str,
     file: UploadFile,
-    background_tasks: BackgroundTasks
+    background_tasks: BackgroundTasks,
+    candidate_name: str = Form(...),
+    experience_years: str = Form(...)
 ):
     """
     Public candidate application: upload resume PDF and parse it in the background linked to the role_id.
@@ -818,7 +820,15 @@ def public_apply_to_job(
         create_task(task_id, "parse_resume")
         
         # Trigger background processing (passes role_id so candidate is linked)
-        background_tasks.add_task(bg_parse_resume, candidate_id, object_path, task_id, role_id)
+        background_tasks.add_task(
+            bg_parse_resume,
+            candidate_id,
+            object_path,
+            task_id,
+            role_id,
+            candidate_name,
+            f"{experience_years} years"
+        )
         
         return {
             "task_id": task_id,
