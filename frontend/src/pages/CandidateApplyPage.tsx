@@ -123,7 +123,7 @@ export default function CandidateApplyPage() {
     return (
       <div className="apply-container">
         <header className="apply-header">
-          <div className="logo-container"><span className="logo-dot"></span>Antigravity Hire</div>
+          <div className="logo-container"><span className="logo-dot"></span>Hirely</div>
         </header>
         <div className="apply-loading">
           <div className="spinner"></div>
@@ -137,7 +137,7 @@ export default function CandidateApplyPage() {
     return (
       <div className="apply-container">
         <header className="apply-header">
-          <div className="logo-container"><span className="logo-dot"></span>Antigravity Hire</div>
+          <div className="logo-container"><span className="logo-dot"></span>Hirely</div>
         </header>
         <div className="apply-error">
           <div className="error-icon-container">✕</div>
@@ -154,7 +154,7 @@ export default function CandidateApplyPage() {
       <header className="apply-header">
         <div className="logo-container">
           <span className="logo-dot"></span>
-          Antigravity Hire
+          Hirely
         </div>
       </header>
 
@@ -326,7 +326,7 @@ export default function CandidateApplyPage() {
               Our recruiting team has received your profile and will review it shortly.
             </p>
             <div className="success-footer">
-              <span className="logo-container"><span className="logo-dot"></span>Antigravity Hire</span>
+              <span className="logo-container"><span className="logo-dot"></span>Hirely</span>
             </div>
           </section>
         )}

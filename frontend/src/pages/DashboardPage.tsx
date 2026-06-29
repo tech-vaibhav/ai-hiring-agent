@@ -174,7 +174,7 @@ export default function DashboardPage() {
         <div className="header-left">
           <div className="logo-container">
             <span className="logo-dot"></span>
-            Antigravity Hire
+            Hirely
           </div>
           <nav className="nav-links">
             <Link to="/dashboard" className="nav-item active">Drives</Link>

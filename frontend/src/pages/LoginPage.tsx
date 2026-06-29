@@ -184,7 +184,7 @@ export default function LoginPage() {
               <path d="M8 22L16 10L24 22" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M10.5 18H21.5" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
             </svg>
-            <span className="lp-logo-text">HireAI</span>
+            <span className="lp-logo-text">Hirely</span>
           </div>
           <div className="lp-brand-copy">
             <h1>Smarter hiring,<br />powered by AI</h1>
@@ -280,7 +280,7 @@ export default function LoginPage() {
             <>
               <div className="lp-card-header">
                 <h2>Create account</h2>
-                <p>Join HireAI and start evaluating candidates</p>
+                <p>Join Hirely and start evaluating candidates</p>
               </div>
 
               <form onSubmit={handleSignUp} className="lp-form">

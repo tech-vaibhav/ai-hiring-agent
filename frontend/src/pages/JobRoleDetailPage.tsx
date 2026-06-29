@@ -376,7 +376,7 @@ export default function JobRoleDetailPage() {
       <div className="detail-container">
         <header className="dashboard-header">
           <div className="header-left">
-            <div className="logo-container"><span className="logo-dot"></span>Antigravity Hire</div>
+            <div className="logo-container"><span className="logo-dot"></span>Hirely</div>
           </div>
         </header>
         <div className="detail-loading">
@@ -392,7 +392,7 @@ export default function JobRoleDetailPage() {
       <div className="detail-container">
         <header className="dashboard-header">
           <div className="header-left">
-            <div className="logo-container"><span className="logo-dot"></span>Antigravity Hire</div>
+            <div className="logo-container"><span className="logo-dot"></span>Hirely</div>
           </div>
         </header>
         <div className="detail-error">
@@ -413,7 +413,7 @@ export default function JobRoleDetailPage() {
         <div className="header-left">
           <div className="logo-container">
             <span className="logo-dot"></span>
-            Antigravity Hire
+            Hirely
           </div>
           <nav className="nav-links">
             <Link to="/dashboard" className="nav-item">Drives</Link>
